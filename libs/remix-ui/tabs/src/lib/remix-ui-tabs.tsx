@@ -219,7 +219,7 @@ export const TabsUI = (props: TabsUIProps) => {
 
   const handleSelectionChange = async (event) => {
     const choice = event.target.value;
-    console.log("Selected AI:", choice); // Debug log
+    console.log("Selected AI:", choice);
     setSelectedAI(choice);
     try {
       await props.plugin.call("solcoder", "setAIModel", choice);
@@ -228,6 +228,8 @@ export const TabsUI = (props: TabsUIProps) => {
       console.error("Error setting AI model:", error);
     }
   };
+
+  localStorage.setItem("AIModel", selectedAI);
 
   return (
     <div
