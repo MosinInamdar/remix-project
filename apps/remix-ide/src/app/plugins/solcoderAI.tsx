@@ -230,42 +230,70 @@ export class SolCoder extends Plugin {
           type: "aitypewriterwarning",
           value: `\n\nWaiting for CoderunAI answer...`,
         });
-        const response = await fetch(this.api_url, {
-          method: "POST",
-          headers: {
-            Authorization:
-              "Bearer ofk*GHrg1Fmu*dvsHBbXn3SWScp7Xb86we7i1apnP24hrtS1dd",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ question: prompt }),
-        });
 
-        // Ensure the response is OK (status 200-299)
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        try {
+          const response = await fetch(this.api_url, {
+            method: "POST",
+            headers: {
+              Authorization:
+                "Bearer ofk*GHrg1Fmu*dvsHBbXn3SWScp7Xb86we7i1apnP24hrtS1dd",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ question: prompt }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let result = "";
+          let done = false;
+
+          let bufferedResult = "";
+
+          while (!done) {
+            const { value, done: streamDone } = await reader.read();
+            done = streamDone;
+            const chunk = decoder.decode(value, { stream: true });
+
+            // Buffer the chunk
+            bufferedResult += chunk;
+
+            // If the buffered result reaches a certain length or if the stream is done
+            if (bufferedResult.length > 100 || done) {
+              // Log the buffered result to the terminal
+              this.call("terminal", "log", {
+                type: "aitypewriterwarning",
+                value: bufferedResult, // Display the buffered result
+              });
+
+              // Clear the buffer
+              bufferedResult = "";
+            }
+          }
+
+          // Log any remaining buffered content after the loop ends
+          if (bufferedResult.length > 0) {
+            this.call("terminal", "log", {
+              type: "aitypewriterwarning",
+              value: bufferedResult, // Display any remaining buffered content
+            });
+          }
+
+          // Ensure the last part of the response is processed
+          result += decoder.decode();
+          this.pushChatHistory(prompt, result);
+
+          return result;
+        } catch (error) {
+          this.call("terminal", "log", {
+            type: "aitypewritererror",
+            value: `Error: ${error.message}`,
+          });
+          throw error;
         }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let result = "";
-        let done = false;
-
-        // Reading the entire response stream
-        while (!done) {
-          const { value, done: streamDone } = await reader.read();
-          done = streamDone;
-          result += decoder.decode(value, { stream: true });
-        }
-
-        // Log the final result
-        this.call("terminal", "log", {
-          type: "aitypewriterwarning",
-          value: result,
-        });
-
-        this.pushChatHistory(prompt, result);
-
-        return result;
       } else {
         this.call("terminal", "log", {
           type: "aitypewriterwarning",
