@@ -7,6 +7,7 @@ const typeConversion = execution.typeConversion;
 
 const showTable = (opts, showTableHash) => {
   const intl = useIntl();
+  const prefix = localStorage.getItem("prefix");
   let msg = "";
   let toHash;
   const data = opts.data; // opts.data = data.tx
@@ -16,6 +17,25 @@ const showTable = (opts, showTableHash) => {
     toHash = opts.to;
   }
   let callWarning = "";
+
+  let decodedOutput = opts["decoded output"];
+
+  // Find the part of the string that contains the address
+  const addressPattern = /address: (\w{2})(\w+)/;
+  const match = decodedOutput.match(addressPattern);
+
+  if (match && match.length === 3) {
+    // match[1] is the current prefix (e.g., '0x'), match[2] is the address part
+    const currentPrefix = match[1];
+    const address = match[2];
+
+    // Replace the current prefix with the desired prefix
+    const updatedAddress = `address: ${prefix}${address}`;
+
+    // Replace the old address with the new one in the string
+    opts["decoded output"] = decodedOutput.replace(match[0], updatedAddress);
+  }
+
   if (opts.isCall) {
     callWarning = intl.formatMessage({ id: "terminal.callWarning" });
   }
@@ -41,7 +61,7 @@ const showTable = (opts, showTableHash) => {
   }
   const val = opts.val != null ? typeConversion.toInt(opts.val) : 0;
   const gasInt = opts.gas != null ? typeConversion.toInt(opts.gas) : 0;
-  const prefix = localStorage.getItem("prefix");
+
   return (
     <table
       className={`mt-1 mb-2 mr-4  align-self-center ${
