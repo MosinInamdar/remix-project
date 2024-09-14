@@ -61,17 +61,18 @@
   animation: fancy-spin 2000ms;
   animation-iteration-count: infinite;
 }
+
 .form-select {
   position: relative;
-  display: inline-block;
   margin-top: 4px;
 }
 
 .form-select select {
+  appearance: none;
   border: none;
-  background-color: transparent; /* Transparent background */
-  color: white; /* White text */
-  padding: 6px 10px;
+  background-color: transparent;
+  color: white;
+  padding: 6px;
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
@@ -83,18 +84,14 @@
 }
 
 .form-select select option {
-  background-color: #333; /* Dark background for options */
-  color: white; /* White text for options */
-  padding: 8px; /* Some padding for visibility */
-  border: none; /* Remove border for options */
-}
-
-.form-select select:hover {
-  background-color: grey; /* Grey background on hover */
+  background-color: #333;
+  color: white;
+  padding: 12px;
+  border: none;
 }
 
 .form-select select option:hover {
-  background-color: fadegrey; /* Grey background for option hover */
+  background-color: grey; /* Grey background for option hover */
 }
 
 @keyframes fancy-spin {

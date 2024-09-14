@@ -349,17 +349,22 @@ export const TabsUI = (props: TabsUIProps) => {
                 </span>
               }
             >
-              <div className="form-select">
+              <div className="form-select ml-2 ">
                 <select
                   id="aiSelection"
                   value={selectedAI}
                   onChange={handleSelectionChange}
                 >
-                  <option value="remixAI">remixAI</option>
+                  <option value="remixAI">RemixAI</option>
                   <option value="CoderunAI">CoderunAI</option>
                 </select>
               </div>
             </CustomTooltip>
+          </div>
+          <div
+            className="d-flex border-left ml-2 align-items-center"
+            style={{ height: "3em" }}
+          >
             <CustomTooltip
               placement="bottom"
               tooltipId="overlay-tooltip-explaination"
